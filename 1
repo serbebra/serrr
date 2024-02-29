@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract L2Challenge {
+    uint256 public challengeValue;
+    uint256 public expirationTime;
+    address public winner;
+    bool public challengeEnded;
+
+    event ChallengeStarted(uint256 value, uint256 expirationTime);
+    event SolutionSubmitted(address indexed solver, uint256 value);
+
+    constructor(uint256 _value, uint256 _duration) {
+        challengeValue = _value;
+        expirationTime = block.timestamp + _duration;
+        challengeEnded = false;
+        emit ChallengeStarted(_value, expirationTime);
+    }
+
+    function submitSolution(uint256 _solution) external {
+        require(!challengeEnded, "Challenge has ended");
+        require(block.timestamp <= expirationTime, "Challenge has expired");
+        require(_solution == challengeValue, "Incorrect solution");
+
+        winner = msg.sender;
+        challengeEnded = true;
+        emit SolutionSubmitted(msg.sender, _solution);
+    }
+}
